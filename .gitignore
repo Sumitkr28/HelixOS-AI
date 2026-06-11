@@ -33,3 +33,7 @@ Thumbs.db
 # Claude Code tooling (not part of the project)
 .claude/
 CLAUDE.md
+
+# Build artifacts / logs
+*.log
+*.tsbuildinfo
