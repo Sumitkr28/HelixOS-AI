@@ -15,6 +15,15 @@ def test_health_demo_mode():
     assert b["capabilities"]["gemini"] is False
 
 
+def test_keepalive_demo_mode_is_noop():
+    # In demo mode there's no Supabase backend, so the ping is a harmless no-op
+    # but the endpoint must still answer ok (an external monitor pings it).
+    b = client.get("/api/keepalive").json()
+    assert b["status"] == "ok"
+    assert b["supabase"] is False
+    assert b["kept_alive"] is False
+
+
 def test_dashboard_shape():
     r = client.get("/api/dashboard")
     assert r.status_code == 200

@@ -51,6 +51,13 @@ class Store(Protocol):
         not mid-run). Used by the cron endpoint. Newest-active first."""
         ...
 
+    def ping(self) -> bool:
+        """Make one cheap request to the backing store so a free-tier project
+        registers activity and is never auto-paused for inactivity. Returns True
+        if the backend was actually reached. A no-op (returns False) for stores
+        with no external backend (demo / in-memory)."""
+        ...
+
 
 class InMemoryStore:
     """Process-local store — the free-phase demo. `save` is a no-op because
@@ -81,6 +88,10 @@ class InMemoryStore:
 
     def list_onboarded_workspace_ids(self, limit: int) -> list[str]:
         return [wid for wid, ws in self._spaces.items() if ws.onboarded][:limit]
+
+    def ping(self) -> bool:
+        # No external backend in demo mode — nothing can pause, nothing to warm.
+        return False
 
 
 # The persistent store (when configured) is process-wide so every workspace

@@ -476,6 +476,31 @@ PLAN.md · README.md · STATUS.md
 
 ## 13. Where to pick up next (session handoff)
 
+### Landed this session (2026-06-25) — Supabase auto-pause incident + keep-alive
+- 🛑 **Incident.** The free-tier Supabase project `helixos-ai`
+  (ref `vcbgzejkfdeoipguenyt`) was **auto-paused after 7 days of inactivity**.
+  Supabase tears down the `*.supabase.co` host when paused, so the browser's
+  Google-OAuth redirect to `vcbgzejkfdeoipguenyt.supabase.co/auth/v1/authorize`
+  failed with `ERR_NAME_NOT_RESOLVED` (login dead; DB/auth/realtime all down).
+  **Fix = restore the project from the Supabase dashboard** (free, within 90
+  days; same ref/URL/keys/OAuth config/data return — no code or env change).
+  Migrating to Firebase was rejected: Supabase here is auth **+ Postgres +
+  Realtime + backend JWT verify**, so a swap orphans 3 of 4 jobs for no gain.
+- ✅ **Keep-alive so it never re-pauses.** `Store.ping()` (no-op on
+  `InMemoryStore`; one cheap `select id from workspaces limit 1` on
+  `SupabaseStore`). The daily cron (`/api/cron/cycle`) now calls `ping()` **first**
+  so a run with zero onboarded workspaces still registers DB activity (reports
+  `kept_alive`). New **public read-only `GET /api/keepalive`** decouples warming
+  the DB from the heavier agent cycle — point any free uptime monitor at it.
+  New **`.github/workflows/keepalive.yml`** pings it twice daily as a *redundant*
+  scheduler independent of Vercel cron (the project paused **despite** that cron).
+  _tsc/py: **36 pytest** green (added `test_keepalive_demo_mode_is_noop`)._
+  - **Action for owner:** (1) Restore the Supabase project. (2) For zero-maintenance
+    redundancy, also add a free **UptimeRobot / cron-job.org** monitor on
+    `https://<deploy>/api/keepalive` (GitHub-Actions schedules get disabled after
+    60 days of repo inactivity). (3) Confirm `helix-os-ai.vercel.app` is the live URL
+    (used as the workflow default; override via repo var `KEEPALIVE_URL`).
+
 ### 🚨 DEPLOY BLOCKER (2026-06-12) — Vercel build fails: Python function > 250 MB
 Deploying **xorvion-ai/HelixOS-AI** to Vercel (project `helix-os-ai`, Hobby).
 The Next.js build succeeds; the deploy then fails with:

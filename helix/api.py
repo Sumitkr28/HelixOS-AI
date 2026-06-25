@@ -102,6 +102,25 @@ def health() -> dict:
     }
 
 
+@app.get("/api/keepalive")
+def keepalive() -> dict:
+    """Lightweight liveness ping that keeps a free-tier Supabase project warm.
+
+    Supabase auto-pauses a free project after 7 days with no requests; once
+    paused its `*.supabase.co` host stops resolving and auth/DB break. This does
+    one cheap read so any free uptime monitor (UptimeRobot, cron-job.org, a
+    GitHub Action — see `.github/workflows/keepalive.yml`) can ping it on a
+    schedule. Deliberately unauthenticated and read-only: it only ever *keeps*
+    the project alive. In demo mode there is no backend, so it's a harmless no-op.
+    """
+    kept_alive = get_store().ping() if settings.supabase_enabled else False
+    return {
+        "status": "ok",
+        "supabase": settings.supabase_enabled,
+        "kept_alive": kept_alive,
+    }
+
+
 @app.get("/api/me")
 def me(user: AuthUser = Depends(current_user), sim: Simulation = Depends(current_sim)) -> dict:
     """The signed-in user + their workspace status — powers the profile, the
@@ -208,8 +227,13 @@ def cron_cycle(authorization: str | None = Header(default=None)) -> dict:
 
     # In demo mode there is just the public demo workspace; with Supabase, step
     # each onboarded, idle workspace (bounded so a free-tier run stays short).
+    kept_alive = False
     if settings.supabase_enabled:
-        ids = get_store().list_onboarded_workspace_ids(settings.cron_max_workspaces)
+        store = get_store()
+        # Always touch Postgres first so a run with zero onboarded workspaces
+        # still registers activity and the free-tier project never auto-pauses.
+        kept_alive = store.ping()
+        ids = store.list_onboarded_workspace_ids(settings.cron_max_workspaces)
     else:
         ids = ["default"]
 
@@ -224,7 +248,11 @@ def cron_cycle(authorization: str | None = Header(default=None)) -> dict:
         except Exception as e:  # one workspace must not abort the whole run
             stepped.append({"workspace": wid, "error": str(e)})
 
-    return {"ran": len([s for s in stepped if "cycle" in s]), "workspaces": stepped}
+    return {
+        "ran": len([s for s in stepped if "cycle" in s]),
+        "kept_alive": kept_alive,
+        "workspaces": stepped,
+    }
 
 
 # --- Dashboard (Command Center) ----------------------------------------

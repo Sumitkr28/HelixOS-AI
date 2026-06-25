@@ -176,6 +176,18 @@ class SupabaseStore:
         except Exception:  # pragma: no cover - defensive (table/publication missing)
             log.exception("activity_events insert failed (realtime disabled?)")
 
+    def ping(self) -> bool:
+        """One minimal read against Postgres so the free-tier project counts as
+        active (Supabase auto-pauses a project after 7 days with no requests).
+        Cheap and read-only — a single indexed `select id ... limit 1`. Logs and
+        returns False on failure so a keep-alive call never raises."""
+        try:
+            self._client.table("workspaces").select("id").limit(1).execute()
+            return True
+        except Exception:  # pragma: no cover - defensive (network/creds)
+            log.exception("supabase ping failed")
+            return False
+
     def list_onboarded_workspace_ids(self, limit: int) -> list[str]:
         """Onboarded, idle workspaces — the ones a background cron run steps."""
         try:
