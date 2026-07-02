@@ -70,16 +70,11 @@ Add keys to `.env` (copy `.env.example`) to switch on live Gemini, Supabase pers
 
 ## 👋 About the creator
 
-Hi, I'm **Sumit Kumar** — an AI Engineer based in Noida, India who loves taking AI products from idea to production. I build under **Xorvion**, my independent studio where I design, build, and ship AI projects end-to-end. HelixOS AI is one of them, and I owned every layer: the multi-agent orchestration, the live/demo architecture, auth + persistence, realtime, and the entire design system.
+Hi, I'm **Sumit Kumar** — an AI/ML Engineer based in Noida, India. I design, build, and ship production-grade AI products end-to-end, and I built **HelixOS AI** across every layer: the multi-agent orchestration, the live/demo architecture, auth and persistence, realtime, and the full design system.
 
-I'm always open to connecting with recruiters, founders, and fellow builders. If you like what you see here, let's talk.
+I'm always open to connecting with recruiters, founders, and fellow builders — if you like what you see here, let's talk.
 
 - 🌐 **Portfolio:** [sumitkr28.vercel.app](https://sumitkr28.vercel.app)
 - 💼 **LinkedIn:** [linkedin.com/in/sumit-kumar2812](https://www.linkedin.com/in/sumit-kumar2812/)
 - 🐙 **GitHub:** [github.com/Sumitkr28](https://github.com/Sumitkr28)
-
-### 🚀 Xorvion — my studio
-
-- 🌐 **Website:** [xorvion-ai.vercel.app](https://xorvion-ai.vercel.app)
-- 🔗 **LinkedIn:** [linkedin.com/company/xorvion](https://www.linkedin.com/company/xorvion)
-- 🐙 **GitHub:** [github.com/xorvion-ai](https://github.com/xorvion-ai)
+- 🚀 **AI Studio:** [Xorvion](https://xorvion-ai.vercel.app)
